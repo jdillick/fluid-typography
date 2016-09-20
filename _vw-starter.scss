@@ -11,29 +11,31 @@
 //
 // ----------------------------------------------------------------------------
 
-	// base font size must be in pixels!!!
-	$base-font-size: 16px !default;
+// base font size must be in pixels!!!
+$base-font-size: 10px !default;
 
-	// layouts -- the pixel width of the Photoshop file for each layout
-	$desktop-layout: 1250px !default;
-	$tablet-layout: 640px !default;
-	$mobile-layout: 320px !default;
+// layouts -- the pixel width of the Photoshop file for each layout
+$desktop-layout: 1024px !default;
+$tablet-layout: 640px !default;
+$mobile-layout: 320px !default;
 
-	// min max breakpoints -- the browser window size at which the layout should change
-	$desktop-max: 1250px !default;
-	$desktop-min: 900px !default;
-	$tablet-max: 899px !default;
-	$tablet-min: 601px !default;
-	$mobile-max: 600px !default;
+// min max breakpoints -- the browser window size at which the layout should change
+$desktop-max: 1250px !default;
+$desktop-min: 1024px !default;
+$tablet-min: 768px !default;
+
+// Account for difference between 100vw and 100% when scroll bars are included on page.
+$body-width-fix: true !default;
+
+// limit fluid typography growth to desktop-max
+$use-desktop-max: false !default;
 
 // ----------------------------------------------------------------------------
 //
 //    strip-units() : convert 14px/14em/etc to (int) 14
 //
 // ----------------------------------------------------------------------------
-
 @function strip-units($number) {
-
 	@if ($number == null) {
 
 		@return null;
@@ -48,9 +50,7 @@
 //    px2rem() : convert from pixels to rems
 //
 // ----------------------------------------------------------------------------
-
 @function px2rem($pixels) {
-
 	$pixels                    : strip-units($pixels);
 	$unitless-base-font-size   : strip-units($base-font-size);
 
@@ -63,9 +63,7 @@
 //    px2em() : convert from pixels to ems, based on the context (inherited font-size in pixels)
 //
 // ----------------------------------------------------------------------------
-
 @function px2em($pixels, $context: $base-font-size) {
-
 	$pixels    : strip-units($pixels);
 	$context   : strip-units($context);
 
@@ -100,9 +98,7 @@
 // 		}
 //
 // ----------------------------------------------------------------------------
-
 @function px2vw($font-size-px, $layout-size-px) {
-
 	$font-size-px     : strip-units($font-size-px);
 	$layout-size-px   : strip-units($layout-size-px);
 
@@ -114,8 +110,9 @@
 // 	vw-base() - set base font-size values in vws for each breakpoint
 //
 // ----------------------------------------------------------------------------
-
-@mixin vw-base($body-width-fix: true) {
+@mixin vw-base {
+	$tablet-max: $desktop-min - 1px;
+	$mobile-max: $tablet-min - 1px;
 
 	@if ($body-width-fix) {
 		@media screen {
@@ -127,9 +124,11 @@
 
 	font-size: $base-font-size * ($desktop-max/$desktop-layout);
 
-	// set font-size to scale until reach max width of the site
-	@media screen and (max-width: $desktop-max) {
-		font-size: px2vw($base-font-size, $desktop-layout);
+	@if ($use-desktop-max) {
+		// set font-size to scale until reach max width of the site
+		@media screen and (max-width: $desktop-max) {
+			font-size: px2vw($base-font-size, $desktop-layout);
+		}
 	}
 
 	// font size reset to 16px at the tablet design layout width
@@ -160,8 +159,26 @@
 // 		}
 //
 // ----------------------------------------------------------------------------
-
 @function font-size-breakpoint($font-size-limit-px, $layout-size-px, $font-size-px: $base-font-size) {
-
 	@return (($font-size-limit-px / $font-size-px) * $layout-size-px);
+}
+
+// ----------------------------------------------------------------------------
+//
+// minimum-base-font-size-mq() - create media query to set max-width to limit
+// 	$font-size-start (viewed at $layout-width) to no smaller than $font-size-limit.
+//
+//	In other words: If your base font size is 16px at a desktop layout of 1600px,
+//	and you want to prevent it from shrinking below 14px, this will create a media query to do so.
+//
+// 	Example usage:
+// 	html {
+// 		@include minimum-base-font-size-mq($font-size-start: 16px, $font-size-limit: 14px, $layout-width: $desktop-layout);
+// 	}
+//
+// ----------------------------------------------------------------------------
+@mixin minimum-base-font-size-mq($font-size-start: 16px, $font-size-limit: 14px, $layout-width: $desktop-layout) {
+	@media (max-width: font-size-breakpoint($font-size-limit, $desktop-layout, $font-size-start)) {
+		font-size: font-size-breakpoint($font-size-limit, $base-font-size, $font-size-start);
+	}
 }
