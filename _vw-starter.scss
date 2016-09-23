@@ -23,7 +23,9 @@ $mobile-layout: 320px !default;
 // min max breakpoints -- the browser window size at which the layout should change
 $desktop-max: 1250px !default;
 $desktop-min: 1024px !default;
+$tablet-max: $desktop-min - 1px;
 $tablet-min: 768px !default;
+$mobile-max: $tablet-min - 1px;
 
 // Account for difference between 100vw and 100% when scroll bars are included on page.
 $body-width-fix: true !default;
@@ -112,9 +114,6 @@ $use-desktop-max: false !default;
 //
 // ----------------------------------------------------------------------------
 @mixin vw-base {
-	$tablet-max: $desktop-min - 1px;
-	$mobile-max: $tablet-min - 1px;
-
 	@if ($body-width-fix) {
 		@media screen {
 			width: 100vw;
@@ -132,8 +131,10 @@ $use-desktop-max: false !default;
 		}
 	}
 	else {
-		// don't contrain the growth of the base font-size
-		font-size: px2vw($base-font-size, $desktop-layout);
+		@media screen {
+			// don't contrain the growth of the base font-size
+			font-size: px2vw($base-font-size, $desktop-layout);
+		}
 	}
 
 	// font size reset to 16px at the tablet design layout width
@@ -190,9 +191,9 @@ $use-desktop-max: false !default;
 
 // ----------------------------------------------------------------------------
 //
-//	vw-base-font-range() - create font-size that will vary between to viewport widths
-//	ranging from the maximum font-size ($base-font-size by default) and the minimum font-size
-//	($minimum-base-font-size by default).
+//	vw-base-font-range() - create font-size that will vary between two viewport
+//	widths ranging from the maximum font-size ($base-font-size by default) and
+//	the minimum font-size ($minimum-base-font-size by default).
 //
 //	y = mx + b
 //
