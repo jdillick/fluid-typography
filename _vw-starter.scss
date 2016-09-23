@@ -130,7 +130,7 @@ $use-desktop-max: false !default;
 			font-size: px2vw($base-font-size, $desktop-layout);
 		}
 	}
-	else {
+	@else {
 		@media screen {
 			// don't contrain the growth of the base font-size
 			font-size: px2vw($base-font-size, $desktop-layout);
