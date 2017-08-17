@@ -1,6 +1,6 @@
-# VW Starter Kit
+# Fluid Typography
 
-The VW Starter Kit quickly sets you up to create dynamically-resizing, responsive websites (using the vw, or viewport width, CSS unit).
+This Fluid Typography starter kit quickly sets you up to create dynamically-resizing, responsive websites (using the vw, or viewport width, CSS unit).
 
 ## Getting Started
 
