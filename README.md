@@ -4,47 +4,57 @@ The VW Starter Kit quickly sets you up to create dynamically-resizing, responsiv
 
 ## Getting Started
 
-* Add the _vw-starter.scss SASS file to your project.
-* In _vw-starter.scss, set your breakpoints, layout widths, and base font size in the variables section.
+* Add the _fluid-type.scss SASS file to your project.
+* Prior to using _fluid-type.scss mixins and function, set layout widths in your _variables.scss if different from the defaults.
 
 ````
 
-	// base font size must be in pixels!!!
-	$base-font-size: 16px;
+$layouts: (
+    'desktop': 1250px,
+    'tablet': 640px,
+    'mobile': 320px
+);
 
-	// layouts -- the pixel width of the Photoshop file for each layout
-	$desktop-layout: 	1250px;
-	$tablet-layout: 	640px;
-	$mobile-layout: 	320px;
+// Account for difference between 100vw and 100% when scroll bars are included on page.
+// Center and trims the offset caused in most browsers by scroll bars when true
+$body-width-fix: true;
 
-	// breakpoints -- the browser window size at which the layout should change
-	$desktop-min: 		900px;
-	$tablet-max: 		899px;
-	$tablet-min: 		601px;
-	$mobile-max: 		600px;
+// set to true to limit maximum scale up for larger screens (default false)
+$use-maximum-scaling-width: true;
+$maximum-scaling-width: 1600px;
 
+// set the base font size in pixels that will be used for non-screen media (default 16px)
+// in general, make this the same value in px that you intend to use in your body i.e. body { font-size: px2rem(16); }
+$print-base-font-size: 16px;
 ````
 
 ## Usage
 
 There are a couple different ways you can use VWs in your project.
 
-Option 1 (recommended): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
+Default (recommended): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
 
 ````
 
-	html {
-		@include vw-base;
-	}
+  html {
+    // root font-sizes, in vw's
+    @include vw-base;
+  }
 
-	h1 {
-		font-size: px2rem(48);
-		margin: px2rem(30) 0;
-	}
+  body {
+    // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
+    // screens larger than the layout width, but proportional to the width)
+    font-size: px2rem(16);
+  }
+
+  h1 {
+    font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
+    margin: px2rem(30) 0;
+  }
 
 ````
 
-Option 2: To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used. Therefore, if the context is different from $base-font-size you will have to pass the context into the px2em() function as the second paramater, as in the margin style example below.
+Option 2: To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
 
 ````
 
