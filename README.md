@@ -23,19 +23,50 @@ $body-width-fix: true;
 $use-maximum-scaling-width: true;
 $maximum-scaling-width: 1600px;
 
-// set the base font size in pixels that will be used for non-screen media (default 16px)
-// in general, make this the same value in px that you intend to use in your body i.e. body { font-size: px2rem(16); }
-$print-base-font-size: 16px;
+// set the base font size in pixels that will be used for non-screen media (default 10px)
+// in general, make this the same value in px that you intend to use as your root font size for rem based sizing.
+
+i.e. body { font-size: 1.6rem; } // 16px for print style
+$print-base-font-size: 10px;
 ````
 
 ## Usage
+
+### Quick Setup
+
+#### Proportionally Perfect
+
+For each layout, to make rem values that scale perfectly to match your layout.
+
+```
+// in your scss
+// rem values scale 1:1 with screen size to be proportional to layout
+html {
+  @include vw-base;
+}
+```
+
+#### Limited Up-scale
+
+For each layout, make rem values proportially perfect at the ideal width, and then
+scale gradually until the next layout.
+
+```
+// in your scss
+// rem values are proportional to layout at minimum (at the layout width)
+// and scale up slowly to 120% maximum before next layout
+html {
+  @include base-font-locks;
+}
+```
+
+## TLDR;
 
 There are a couple different ways you can use VWs in your project.
 
 Default (recommended): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
 
 ````
-
   html {
     // root font-sizes, in vw's
     @include vw-base;
@@ -54,7 +85,30 @@ Default (recommended): Apply the vw-base mixin to the root <html> element. Then,
 
 ````
 
-Option 2: To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
+Option 2: ("font locks")
+
+````
+  html {
+    // root font-sizes, in calculated scale
+    // scale root font size from 10px proportional to layout up to 12px
+    // proportional to layout
+    @include @include base-font-locks(10, 12);
+  }
+
+  body {
+    // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
+    // screens larger than the layout width, no more than 120% size)
+    font-size: px2rem(16); // from 16px physical up to 19.2px before breaking to next layout
+  }
+
+  h1 {
+    font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
+    margin: px2rem(30) 0;
+  }
+
+````
+
+Option 3: (individual component control) To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
 
 ````
 
