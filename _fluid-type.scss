@@ -15,7 +15,7 @@
 // browser. It is an arbitrary value used to generate rem values in px2rem
 $root-font-sizing-constant: 10px;
 
-$print-base-font-size: 16px !default;
+$print-base-font-size: 10px !default;
 
 // layouts -- the pixel width of the Photoshop file for each layout
 $layouts: (
@@ -49,8 +49,8 @@ $maximum-scaling-width: 1600px !default;
 //    get-layout-width() : helper
 //
 // ----------------------------------------------------------------------------
-@function get-layout-width($name) {
-    @return map-get($layouts, $name);
+@function get-layout-width($layout) {
+    @return strip-units(map-get($layouts, $layout));
 }
 
 // ----------------------------------------------------------------------------
@@ -184,4 +184,36 @@ $maximum-scaling-width: 1600px !default;
   $m: (strip-units($max-font-size) - strip-units($min-font-size)) / (strip-units($view-width-max) - strip-units($view-width-min));
   $b: $m * -1 * $view-width-min + $min-font-size;
   font-size: calc( #{$m} * 100vw + #{$b} );
+}
+
+// Alternative to vw-base
+// Provides font-size locks for provided layouts.
+@mixin base-font-locks($base-font-min: $root-font-sizing-constant, $base-font-max: $root-font-sizing-constant + 2) {
+    $layout-keys: map-keys($layouts);
+
+    @if ($body-width-fix) {
+      @media screen {
+        width: 100vw;
+        margin-left: calc((100% - 100vw) / 2);
+        overflow-x: hidden;
+      }
+    }
+
+    // print base font size
+    font-size: $print-base-font-size;
+    @for $index from 1 through length($layout-keys) {
+        @if($index + 1 <= length($layout-keys)) {
+            $view-width-min: map-get($layouts, nth($layout-keys, $index + 1));
+            $view-width-max: map-get($layouts, nth($layout-keys, $index));
+
+            @media screen and (min-width: $view-width-min) and (max-width: $view-width-max) {
+                font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, $index)));
+                @include vw-base-font-range($view-width-max, $view-width-min, $min-font-size: $base-font-min, $max-font-size: $base-font-max);
+            }
+        }
+    }
+
+    @media screen and ( max-width: #{map-get($layouts, nth($layout-keys, length($layout-keys))) - 1} ) {
+        font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, length($layout-keys))));
+    }
 }
