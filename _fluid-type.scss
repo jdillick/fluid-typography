@@ -204,7 +204,7 @@ $maximum-scaling-width: 1600px !default;
     @for $index from 1 through length($layout-keys) {
         @if($index + 1 <= length($layout-keys)) {
             $view-width-min: map-get($layouts, nth($layout-keys, $index + 1));
-            $view-width-max: map-get($layouts, nth($layout-keys, $index));
+            $view-width-max: map-get($layouts, nth($layout-keys, $index)) - 1;
 
             @media screen and (min-width: $view-width-min) and (max-width: $view-width-max) {
                 font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, $index)));
@@ -216,4 +216,5 @@ $maximum-scaling-width: 1600px !default;
     @media screen and ( max-width: #{map-get($layouts, nth($layout-keys, length($layout-keys))) - 1} ) {
         font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, length($layout-keys))));
     }
+
 }
