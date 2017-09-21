@@ -86,7 +86,10 @@ let isMobile = window.matchMedia(`(max-width: ${layouts.tablet - 1}px)`).matches
 
 There are a couple different ways you can use VWs in your project.
 
-Default (recommended): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
+Option 1 (proportionally perfect): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
+
+The only down-side to this approach is that text will get comically large when growing to the next layout change if you have few layouts. Also, if you design
+doesn't account for smaller screens, the text will be unreadably small on displays smaller than your ideal layout width. It's best to play for several layout that grow from smallest viewport width (which should match your design layout) up to the next larger layout design. On the other hand this might be extremely good behavior if your want the text to be readable on a large screen from a distance.
 
 ````
 html {
@@ -106,13 +109,14 @@ h1 {
 }
 ````
 
-Option 2: ("font locks")
+Option 2: ("font locks") - This approach has the benefits of Option 1 when viewing your design at the ideal layout width, but will only allow limited up-scale as the viewport becomes larger. This will limit up-scale to prevent type from becoming excessively large and begin to look "horsey" (a term I hear creatives use sometimes). By default, it will allow up to 120% growth (say 12px type on the design will grow to as much as 14.4px for large enough screens.) Use the base-font-locks mix-in to set this growth factor to your particular needs.
 
 ````
 html {
   // root font-sizes, in calculated scale
   // scale root font size from 10px proportional to layout up to 12px
   // proportional to layout
+  // use this *instead* of vw-base
   @include base-font-locks(10, 12);
 }
 
