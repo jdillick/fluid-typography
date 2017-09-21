@@ -8,11 +8,15 @@ This Fluid Typography starter kit quickly sets you up to create dynamically-resi
 * Prior to using _fluid-type.scss mixins and function, set layout widths in your _variables.scss if different from the defaults.
 
 ````
-
+// IMPORTANT!
+// Define these from largest to smallest. If you change the order, some of the mix-ins will break.
 $layouts: (
-    'desktop': 1250px,
-    'tablet': 640px,
-    'mobile': 320px
+  'desktop-large': 1660px,
+  'desktop': 1440px,
+  'desktop-small': 1024px,
+  'tablet': 800px,
+  'small-tablet': 640px,
+  'mobile': 375px
 );
 
 // Account for difference between 100vw and 100% when scroll bars are included on page.
