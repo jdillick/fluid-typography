@@ -218,3 +218,35 @@ $maximum-scaling-width: 1600px !default;
     }
 
 }
+
+//
+// @include in body
+// e.g.
+// body {
+//   @inclue bp-to-json
+// }
+//
+// Then your breakpoint data will be accessible in javascript.
+@mixin bp-to-json {
+  $layout-keys: map-keys($layouts);
+  $json: '{';
+  @for $index from 1 through length($layout-keys) {
+      $json: $json + "\"" + nth($layout-keys, $index) + "\"" + ":";
+      $json: $json + "\"" + strip-units(map-get($layouts, nth($layout-keys, $index))) + "\"";
+      @if ( $index < length($layout-keys)) {
+        $json: $json + ",";
+      }
+  }
+  $json: $json + "}";
+  &:before {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+    content: quote($json);
+  }
+}
