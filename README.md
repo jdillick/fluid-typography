@@ -89,64 +89,60 @@ There are a couple different ways you can use VWs in your project.
 Default (recommended): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimmensions and values in pixels in Photoshop, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size.
 
 ````
-  html {
-    // root font-sizes, in vw's
-    @include vw-base;
-  }
+html {
+  // root font-sizes, in vw's
+  @include vw-base;
+}
 
-  body {
-    // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
-    // screens larger than the layout width, but proportional to the width)
-    font-size: px2rem(16);
-  }
+body {
+  // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
+  // screens larger than the layout width, but proportional to the width)
+  font-size: px2rem(16);
+}
 
-  h1 {
-    font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
-    margin: px2rem(30) 0;
-  }
-
+h1 {
+  font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
+  margin: px2rem(30) 0;
+}
 ````
 
 Option 2: ("font locks")
 
 ````
-  html {
-    // root font-sizes, in calculated scale
-    // scale root font size from 10px proportional to layout up to 12px
-    // proportional to layout
-    @include base-font-locks(10, 12);
-  }
+html {
+  // root font-sizes, in calculated scale
+  // scale root font size from 10px proportional to layout up to 12px
+  // proportional to layout
+  @include base-font-locks(10, 12);
+}
 
-  body {
-    // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
-    // screens larger than the layout width, no more than 120% size)
-    font-size: px2rem(16); // from 16px physical up to 19.2px before breaking to next layout
-  }
+body {
+  // the true default font-size, in rem's (should be 16px when viewed at exact layout width, will be larger than 16 for
+  // screens larger than the layout width, no more than 120% size)
+  font-size: px2rem(16); // from 16px physical up to 19.2px before breaking to next layout
+}
 
-  h1 {
-    font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
-    margin: px2rem(30) 0;
-  }
-
+h1 {
+  font-size: px2rem(48); // 48 pixels when viewed at ideal layout width
+  margin: px2rem(30) 0;
+}
 ````
 
 Option 3: (individual component control) To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
 
 ````
+header {
+	@include vw-base;
 
-	header {
-		@include vw-base;
-
-		h1 {
-			font-size: px2em(48);
-			margin: px2em(30, 48) 0;
-		}
-
-		h2 {
-			font-size: px2em(36);
-		}
+	h1 {
+		font-size: px2em(48);
+		margin: px2em(30, 48) 0;
 	}
 
+	h2 {
+		font-size: px2em(36);
+	}
+}
 ````
 
 ### Setting minimum and maximum font sizes
@@ -156,21 +152,19 @@ To avoid text that gets too small or expands too large, you can set min and max 
 Example:
 
 ````
+h2 {
+	font-size: px2em(16);
 
-	h2 {
-		font-size: px2em(16);
-
-		// when the text scales down to 12px, set a fixed font-size of 12px on desktop
-		@media screen and (max-width: font-size-breakpoint(12px, $desktop-layout, 16px)) and (min-width: $desktop-min) {
-			font-size: 12px;
-		}
-
-		// when the text scales up to 20px, set a fixed font-size of 20px on tablet
-		@media screen and (max-width: $tablet-max) and (min-width: font-size-breakpoint(20px, $tablet-layout, 16px)) {
-			font-size: 20px;
-		}
+	// when the text scales down to 12px, set a fixed font-size of 12px on desktop
+	@media screen and (max-width: font-size-breakpoint(12px, $desktop-layout, 16px)) and (min-width: $desktop-min) {
+		font-size: 12px;
 	}
 
+	// when the text scales up to 20px, set a fixed font-size of 20px on tablet
+	@media screen and (max-width: $tablet-max) and (min-width: font-size-breakpoint(20px, $tablet-layout, 16px)) {
+		font-size: 20px;
+	}
+}
 ````
 
 ### VW Quirks & Fixes
@@ -180,28 +174,23 @@ Example:
 In many browsers, 100vw is not equivalent to 100% on the <html> element--the scroll bars are taken into account for % but not for vws. The relatively easy fix below forces <html> to be 100vw wide and is included, by default, in the vw-base mixin. If 100vw is larger than 100% it applies a negative margin to center the <html> element. The only caveat is that a little bit of your page will be trimmed on the sides.
 
 ````
-
-	html {
-		@media screen {
-			width: 100vw;
-			margin-left: calc((100% - 100vw) / 2);
-			overflow-x: hidden;
-		}
+html {
+	@media screen {
+		width: 100vw;
+		margin-left: calc((100% - 100vw) / 2);
+		overflow-x: hidden;
 	}
-
+}
 ````
 
-To disable the fix in the vw-base mixin (for e.g., if you're applying vw-base to components, rather than to the <html> element) pass a value of false to the mixin:
+In your scss variables file, you an make this adjustment automatically by setting $body-width-fix to true. Set this to false if you are ok with the layouts being slightly truncated by the right-side scroll-bar (i.e. if this is already accounted for in the design with left/right margins for instance). Warning: If your design is edge to edge and there is visible content touching the edge, using this approach may cut off your content slightly.
 
-````
+To adjust for scroll bars.
+```
+$body-width-fix: true;
+```
 
-	html {
-		@include vw-base(false);
-	}
-
-````
-
-####Print Stylesheets
+#### Print Stylesheets
 
 VWs are interpreted as 0px when you print which renders elements invisible. To avoid undesirable styling, keep all vw styles within @media screen blocks.
 
