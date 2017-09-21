@@ -86,7 +86,9 @@ let isMobile = window.matchMedia(`(max-width: ${layouts.tablet - 1}px)`).matches
 
 There are a couple different ways you can use VWs in your project.
 
-Option 1 (proportionally perfect): Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimensions and values in pixels in Photoshop/Sketch, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size. Viewed at any viewport width, your page will always look perfectly proportional to the creative design.
+### Option 1 (proportionally perfect):
+
+ Apply the vw-base mixin to the root <html> element. Then, in your CSS, set your style measurements (font-size, padding, margin, width, height, position, etc.) for all other elements using the px2rem() function. Simply measure your dimensions and values in pixels in Photoshop/Sketch, and enter the pixel value into the px2rem() function. Your value will be converted to REMs, which are similar to EMs except that they are relative to the root element and will not be affected by the parent element's font-size. Viewed at any viewport width, your page will always look perfectly proportional to the creative design.
 
 The only down-side to this approach is that text will get comically large when growing to the next layout change if you have few layouts. Also, if your design
 doesn't account for smaller screens, the text will be unreadably small on displays smaller than your ideal layout width. It's best to plan for several layout that grow from the smallest ideal viewport width (which should match your design layout) up to the next larger layout design. On the other hand, this might be extremely good behavior if your want the text to be readable on a large screen from a distance.
@@ -111,7 +113,9 @@ h1 {
 }
 ````
 
-Option 2: ("font locks") - Apply the base-font-locks mix-in to your html element, and use the px2rem() function for sizes as you would for option 1. This approach has the benefits of Option 1 when viewing your design at the ideal layout width, but will allow limited up-scale as the viewport becomes larger. This will limit up-scale to prevent type from becoming excessively large and begin to look "horsey" (a term I hear creatives use sometimes). By default, it will allow up to 120% growth (say 12px type on the design will grow to as much as 14.4px for large enough screens.) Use the base-font-locks mix-in to set this growth factor to your particular needs.
+### Option 2: ("font locks")
+
+Apply the base-font-locks mix-in to your html element, and use the px2rem() function for sizes as you would for option 1. This approach has the benefits of Option 1 when viewing your design at the ideal layout width, but will allow limited up-scale as the viewport becomes larger. This will limit up-scale to prevent type from becoming excessively large and begin to look "horsey" (a term I hear creatives use sometimes). By default, it will allow up to 120% growth (say 12px type on the design will grow to as much as 14.4px for large enough screens.) Use the base-font-locks mix-in to set this growth factor to your particular needs.
 
 The down-side to this approach is that the layout won't be proportionally "perfect" to the design at all intermediate viewport widths, but everything will look nice, and you still won't need to layer in a million media queries to fix breaking text everywhere if you plan to let your design grow into additional screen real-estate. With both option 1 and option 2, it is best to plan for growth, not shrink. If you try this method and have your layout scale down/shink (NOT recommended), you'll lose some of the efficient CSS benefits of the fluid type approach.
 
@@ -136,7 +140,9 @@ h1 {
 }
 ````
 
-Option 3: (individual component control) To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
+### Option 3: (individual component control):
+
+To affect individual components only, apply the vw-base mixin to the component container element. Then, use ems and the px2em() function to resize all component elements. This is a little more complicated because EMs are relative to the font-size of the context in which they are used, so you will have to track the current sizing context each time you set the font-size.
 
 ````
 header {
