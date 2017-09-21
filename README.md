@@ -48,7 +48,7 @@ html {
 
 #### Limited Up-scale
 
-For each layout, make rem values proportially perfect at the ideal width, and then
+For each layout, make rem values proportionally perfect at the ideal width, and then
 scale gradually until the next layout.
 
 ```
@@ -58,6 +58,28 @@ scale gradually until the next layout.
 html {
   @include base-font-locks;
 }
+```
+
+### Pass Layouts to Javascript Environment
+
+Use the bp-to-json mixin to package the layouts map into your body:before psuedo element as parsable JSON.
+
+In your scss:
+
+```
+body {
+  @include bp-to-json;
+}
+```
+
+In your javascript:
+
+```
+// Get a list of layouts that came from css
+const layouts = JSON.parse(JSON.parse(window.getComputedStyle(document.body, ':before').getPropertyValue('content')));
+
+// Now you can run js media queries on this
+let isMobile = window.matchMedia(`(max-width: ${layouts.tablet - 1}px)`).matches;
 ```
 
 ## TLDR;
@@ -92,7 +114,7 @@ Option 2: ("font locks")
     // root font-sizes, in calculated scale
     // scale root font size from 10px proportional to layout up to 12px
     // proportional to layout
-    @include @include base-font-locks(10, 12);
+    @include base-font-locks(10, 12);
   }
 
   body {
