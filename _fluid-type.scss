@@ -198,6 +198,21 @@ $maximum-scaling-width: 1600px !default;
         overflow-x: hidden;
       }
     }
+    //largest screens
+    // set font-size to scale until reach max width of the site
+    @if ($use-maximum-scaling-width) {
+      font-size: $root-font-sizing-constant * ($maximum-scaling-width / map-get($layouts, nth($layout-keys, 1)));
+
+      @media screen and (max-width: $maximum-scaling-width) {
+        font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, 1)));
+      }
+    }
+    @else {
+      @media screen {
+        // don't constrain the growth of the base font-size
+        font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, 1)));
+      }
+    }
 
     // print base font size
     font-size: $print-base-font-size;
@@ -213,10 +228,10 @@ $maximum-scaling-width: 1600px !default;
         }
     }
 
+    // smallest screens
     @media screen and ( max-width: #{map-get($layouts, nth($layout-keys, length($layout-keys))) - 1} ) {
         font-size: px2vw($root-font-sizing-constant, map-get($layouts, nth($layout-keys, length($layout-keys))));
     }
-
 }
 
 //
@@ -247,6 +262,6 @@ $maximum-scaling-width: 1600px !default;
     overflow: hidden;
     clip: rect(0,0,0,0);
     border: 0;
-    content: quote($json);
+    content: $json;
   }
 }
