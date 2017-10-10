@@ -1,0 +1,269 @@
+//
+// Fluid Typography Starter - see https://github.com/jdillick/fluid-typography
+//
+// Bootstrap 4 beta+ $grid-breakpoints compatible version.
+//
+// ----------------------------------------------------------------------------
+//
+//    Variables
+//
+//    Set the variables below to match your Photoshop file widths (in pixels) and to specify breakpoints based on browser window size.
+//
+// ----------------------------------------------------------------------------
+
+// These must be set in pixels
+// root-font-sizing-constant is never used as an actual pixel dimension in
+// browser. It is an arbitrary value used to generate rem values in px2rem
+$root-font-sizing-constant: 10px !default;
+$print-base-font-size: 10px !default;
+
+// layouts -- the pixel width of the Photoshop file for each layout
+$layouts: $grid-breakpoints !default;
+
+// Account for difference between 100vw and 100% when scroll bars are included on page.
+$body-width-fix: true !default;
+
+// limit fluid typography growth to a maximum width
+$use-maximum-scaling-width: false !default;
+$maximum-scaling-width: 1600px !default;
+$fg-debug-border: #000 !default;
+$bg-debug-color: #F3F315 !default;
+
+// ----------------------------------------------------------------------------
+//
+//    strip-units() : convert 14px/14em/etc to (int) 14
+//
+// ----------------------------------------------------------------------------
+@function strip-units($number) {
+     @if ($number == null){
+        @return null;
+    }
+    @return $number / ($number * 0 + 1);
+}
+
+// ----------------------------------------------------------------------------
+//
+//    get-layout-width() : helper
+//
+// ----------------------------------------------------------------------------
+@function get-layout-width($layout) {
+     @return strip-units(map-get($layouts, $layout));
+}
+
+// ----------------------------------------------------------------------------
+//
+//    px2rem() : convert from pixels to rems
+//
+// ----------------------------------------------------------------------------
+@function px2rem($pixels) {
+    $pixels: strip-units($pixels);
+    $constant: strip-units($root-font-sizing-constant);
+    @return #{$pixels/$constant}rem;
+}
+
+// ----------------------------------------------------------------------------
+//
+//    px2em() : convert from pixels to ems, based on the context (inherited font-size in pixels)
+//
+// ----------------------------------------------------------------------------
+@function px2em($pixels, $context: $root-font-sizing-constant) {
+    $pixels: strip-units($pixels);
+    $context: strip-units($context);
+    @return #{$pixels/$context}em;
+}
+
+// ----------------------------------------------------------------------------
+//
+//    px2vw() : used to calculate vw font size so as to match Photoshop (or similar) design files.
+//
+// ----------------------------------------------------------------------------
+@function px2vw($font-size-px, $layout-size-px) {
+    $font-size-px: strip-units($font-size-px);
+    $layout-size-px: strip-units($layout-size-px);
+    @return ($font-size-px / $layout-size-px) * 100vw;
+}
+
+// ----------------------------------------------------------------------------
+//
+//  font-size-breakpoint() - calculate min/max font size breakpoints (for specific components)
+//
+//  Example usage:
+//
+//  blockquote {
+//    font-size: px2rem(17); // scaling down from a base size of 17px
+//
+//    // when font-size shrinks to 12px, set the CSS to 12px to stop
+//    // further scaling
+//    @media (max-width: font-size-breakpoint(12px, $desktop-layout, 17px)) {
+//      font-size: 12px;
+//    }
+//  }
+//
+// ----------------------------------------------------------------------------
+@function font-size-breakpoint($font-size-limit-px, $layout-size-px, $font-size-px: $root-font-sizing-constant) {
+     @return (($font-size-limit-px / $font-size-px) * $layout-size-px);
+}
+
+// ----------------------------------------------------------------------------
+//
+// 	vw-base() - set base font-size values in vws for each breakpoint
+//
+// ----------------------------------------------------------------------------
+@mixin vw-base {
+    $layout-keys: map-keys($layouts);
+    @if ($body-width-fix) {
+         @media screen{
+            width: 100vw;
+            margin-left: calc((100% - 100vw) / 2);
+            overflow-x: hidden;
+        }
+    }
+
+    // print base font size
+    font-size: $print-base-font-size;
+
+    @for $index from 1 through length($layout-keys) {
+        $bp-name: nth($layout-keys, $index);
+        $min: breakpoint-min($bp-name);
+
+        @if ( $min ) {
+            @include media-breakpoint-up($bp-name) {
+                font-size: px2vw($root-font-sizing-constant, $min);
+            }
+        }
+        // set font-size to scale until reach max width of the site
+        @if ($use-maximum-scaling-width) {
+          @media (min-width: $maximum-scaling-width) {
+              font-size: $root-font-sizing-constant * ($maximum-scaling-width / map-get($layouts, length($layout-keys)));
+          }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+//
+//  vw-base-font-range() - create font-size that will vary between two viewport
+//  widths ranging from the maximum font-size and the minimum font-size.
+//
+//  y = mx + b
+//
+// ----------------------------------------------------------------------------
+@mixin vw-base-font-range($view-width-max, $view-width-min, $min-font-size, $max-font-size) {
+    $m: (strip-units($max-font-size) - strip-units($min-font-size)) / (strip-units($view-width-max) - strip-units($view-width-min));
+    $b: $m * -1 * $view-width-min + $min-font-size;
+    font-size: calc( #{$m} * 100vw + #{$b} );
+}
+
+// Alternative to vw-base
+// Provides font-size locks for provided layouts.
+@mixin base-font-locks($base-font-min: $root-font-sizing-constant, $base-font-max: $root-font-sizing-constant + 2) {
+    $layout-keys: map-keys($layouts);
+    @if ($body-width-fix) {
+         @media screen{
+            width: 100vw;
+            margin-left: calc((100% - 100vw) / 2);
+            overflow-x: hidden;
+        }
+    }
+    // print base font size
+    font-size: $print-base-font-size;
+    @for $index from 1 through length($layout-keys) {
+        $bp-name: nth($layout-keys, $index);
+        $min: breakpoint-min($bp-name);
+        $max: breakpoint-max($bp-name);
+        // all intermediate to largest bp's
+        @if($min and $max) {
+            @include media-breakpoint-up($bp-name) {
+                 @include vw-base-font-range($max, $min, $min-font-size: $base-font-min, $max-font-size: $base-font-max);
+            }
+        }
+    }
+
+    //largest screens
+    // set font-size to scale until reach max width of the site
+    $bp-largest: nth($layout-keys, length($layout-keys));
+    $min: breakpoint-min($bp-largest);
+    $max: $maximum-scaling-width;
+    @if ($use-maximum-scaling-width and $maximum-scaling-width > $min) {
+         @media (min-width: $min) and (max-width: $maximum-scaling-width - 1){
+            @include vw-base-font-range($max, $min, $min-font-size: $base-font-min, $max-font-size: $base-font-max);
+        }
+        @media (min-width: $maximum-scaling-width) {
+            font-size: $base-font-max;
+        }
+    }
+    // continue scaling up at rate similar to previous range forever
+    @else {
+        $bp-second-largest: nth($layout-keys, length($layout-keys) - 1);
+        $min: breakpoint-min(nth($layout-keys, length($layout-keys)));
+        $max: $min + breakpoint-max($bp-second-largest) - breakpoint-min($bp-second-largest);
+        @include media-breakpoint-up(nth($layout-keys, length($layout-keys))) {
+             @include vw-base-font-range($max, $min, $min-font-size: $base-font-min, $max-font-size: $base-font-max);
+        }
+    }
+}
+
+// Include in an element selector to add a debugging notice.
+@mixin debug-layouts {
+    &::after {
+        position: fixed;
+        padding: px2rem(10);
+        bottom: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: px2rem(200);
+        height: px2rem(50);
+        background: $bg-debug-color;
+        border: 1px solid $fg-debug-border;
+        z-index: 10000;
+    }
+    $layout-keys: map-keys($layouts);
+    @for $index from 1 through length($layout-keys) {
+        $bp-name: nth($layout-keys, $index);
+        $min: breakpoint-min($bp-name);
+        // all intermediate to largest bp's
+        @if($min) {
+             @include media-breakpoint-up($bp-name){
+                &:after {
+                    $label: "#{$bp-name}: " + $min + "+";
+                    content: $label;
+                }
+            }
+        }
+    }
+}
+
+//
+// @include in body
+// e.g.
+// body {
+//   @inclue bp-to-json
+// }
+//
+// Then your breakpoint data will be accessible in javascript.
+@mixin bp-to-json {
+    $layout-keys: map-keys($layouts);
+    $json: '{';
+    @for $index from 1 through length($layout-keys) {
+        $json: $json + "\"" + nth($layout-keys, $index) + "\"" + ":";
+        $json: $json + "\"" + strip-units(map-get($layouts, nth($layout-keys, $index))) + "\"";
+        @if ( $index < length($layout-keys)) {
+            $json: $json + ",";
+        }
+    }
+    $json: $json + "}";
+
+    &:before {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        border: 0;
+        content: $json;
+    }
+}
